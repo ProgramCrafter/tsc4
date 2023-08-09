@@ -9,7 +9,30 @@
 () recv_internal() {
 }
 
+int udict_has(cell dict, int key, int key_len) asm(key dict key_len) "DICTUGET NULLSWAPIFNOT NIP";
+
+(cell, cell) _find_branch_by_hash(int hash, cell tree, int x, cell visited) inline_ref {
+  if (tree.cell_hash() == hash) { return tree; }
+  visited~udict_set(x, 24, "");
+
+  slice tree = tree.begin_parse();
+  repeat(tree.slice_refs()) {
+    cell v = tree~load_ref();
+    int x = v.cell_hash() % (1 << 24);
+    if (~ visited.udict_has(x, 24)) {
+      (visited, cell answer) = _find_branch_by_hash(hash, v, x, visited);
+      if (~ answer.cell_null?()) { return answer; }
+    }
+  }
+  return null();
+}
+
 ;; testable
 (cell) find_branch_by_hash(int hash, cell tree) method_id {
-  return begin_cell().end_cell();
+  (_, cell answer) = _find_branch_by_hash(hash, tree, tree.cell_hash() % (1 << 24), null());
+  if (answer.cell_null?()) {
+    return begin_cell().end_cell();
+  } else {
+    return answer;
+  }
 }
