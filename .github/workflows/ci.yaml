@@ -48,7 +48,11 @@ jobs:
             exit 1  # Exit with a non-zero code to mark the action as failed
           fi
           sleep 10  # Adjust the wait time as needed
-
+      
+      - name: Cat response.log
+        run: |
+          cat response.log
+      
       - name: Problem testing results
         run: |
           # Remove the leading '=' character from the content
