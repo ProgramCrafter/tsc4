@@ -9,11 +9,11 @@
   After calculating the result matrix, the function should return final result (as tuple).
 -}
 
-() recv_internal() {
-}
+() terminate() impure asm "RETALT";
 
-;; testable
-(tuple) matrix_multiplier(tuple matrixA, tuple matrixB) method_id {
-  return null();
+() recv_internal() { }
+
+tuple matrix_multiplier(tuple matrixA, tuple matrixB) method_id {
+  terminate();
 }
 
