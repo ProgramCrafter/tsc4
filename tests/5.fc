@@ -1,0 +1,22 @@
+() __test_fibonacci_small() {
+  ~dump(fibonacci_sequence(0, 8));
+  ~dump(fibonacci_sequence(1, 7));
+  ~dump(fibonacci_sequence(2, 6));
+}
+
+() __test_fibonacci_statement_a() {
+  ~dump(fibonacci_sequence(1, 3));
+  ~dump(unsafe_tuple([1, 1, 2]));
+}
+
+() __test_fibonacci_statement_b() {
+  ~dump(fibonacci_sequence(201, 4));
+  ~dump(unsafe_tuple([453973694165307953197296969697410619233826,
+  734544867157818093234908902110449296423351,
+  1188518561323126046432205871807859915657177,
+  1923063428480944139667114773918309212080528]));
+}
+
+() __test_fibonacci_overflow() {
+  ~dump(fibonacci_sequence(369, 2));
+}

@@ -1,7 +1,24 @@
-[ 3][t 0][2023-08-10 11:37:27.4037718][vm.cpp:586]	steps: 502 gas: used=28334, max=1000000000, limit=1000000000, credit=0
-[ 3][t 0][2023-08-10 11:37:27.4038939][vm.cpp:586]	steps: 145 gas: used=8392, max=1000000000, limit=1000000000, credit=0
-[ 3][t 0][2023-08-10 11:37:27.4039945][vm.cpp:586]	steps: 540 gas: used=31762, max=1000000000, limit=1000000000, credit=0
+[ 3][t 0][2023-08-10 11:48:30.6305146][vm.cpp:586]	steps: 502 gas: used=28334, max=1000000000, limit=1000000000, credit=0
+[ 3][t 0][2023-08-10 11:48:30.6306548][vm.cpp:586]	steps: 145 gas: used=8392, max=1000000000, limit=1000000000, credit=0
+[ 3][t 0][2023-08-10 11:48:30.6307568][vm.cpp:586]	steps: 540 gas: used=31762, max=1000000000, limit=1000000000, credit=0
 INFO: Test [[32m__test_a[0m] status: [[32mSUCCESS[0m] Test result: [[32m[ 21234 C{4AEED4B929C141A44962F6A5288CC3D7E2230A438A0A3BC109A69991D0E003DD} ][0m] Total gas used (including testing code): [[32m28334[0m]
 INFO: Test [[32m__test_b[0m] status: [[32mSUCCESS[0m] Test result: [[32m[ 1318 C{53FB94A18EA2A521903FA43B33BBD74B78B9FA777FB50DDD272731416C726008} ][0m] Total gas used (including testing code): [[32m8392[0m]
 INFO: Test [[32m__test_no[0m] status: [[32mSUCCESS[0m] Test result: [[32m[ 24744 C{96A296D224F285C67BEE93C30F8A309157F0DAA35DC5B87E410B78630A09CFC7} ][0m] Total gas used (including testing code): [[32m31762[0m]
+
+#DEBUG#: s0 = [0 1 1 2 3 5 8 13]
+#DEBUG#: s0 = [1 1 2 3 5 8 13]
+#DEBUG#: s0 = [1 2 3 5 8 13]
+[ 3][t 0][2023-08-10 11:48:30.6632869][vm.cpp:586]	steps: 280 gas: used=7841, max=1000000000, limit=1000000000, credit=0
+INFO: Test [[32m__test_fibonacci_small[0m] status: [[32mSUCCESS[0m] Test result: [[32m[][0m] Total gas used (including testing code): [[32m7841[0m]
+#DEBUG#: s0 = [1 1 2]
+#DEBUG#: s0 = [1 1 2]
+[ 3][t 0][2023-08-10 11:48:30.6635018][vm.cpp:586]	steps: 69 gas: used=2943, max=1000000000, limit=1000000000, credit=0
+INFO: Test [[32m__test_fibonacci_statement_a[0m] status: [[32mSUCCESS[0m] Test result: [[32m[][0m] Total gas used (including testing code): [[32m2943[0m]
+#DEBUG#: s0 = [453973694165307953197296969697410619233826 734544867157818093234908902110449296423351 1188518561323126046432205871807859915657177 1923063428480944139667114773918309212080528]
+#DEBUG#: s0 = [453973694165307953197296969697410619233826 734544867157818093234908902110449296423351 1188518561323126046432205871807859915657177 1923063428480944139667114773918309212080528]
+[ 3][t 0][2023-08-10 11:48:30.6636613][vm.cpp:586]	steps: 254 gas: used=6659, max=1000000000, limit=1000000000, credit=0
+INFO: Test [[32m__test_fibonacci_statement_b[0m] status: [[32mSUCCESS[0m] Test result: [[32m[][0m] Total gas used (including testing code): [[32m6659[0m]
+#DEBUG#: s0 = [58472848379039952684853851736901133239741266891456844557261755914039063645794 94611056096305838013295371573764256526437182762229865607320618320601813254535]
+[ 3][t 0][2023-08-10 11:48:30.6637893][vm.cpp:586]	steps: 31 gas: used=1842, max=1000000000, limit=1000000000, credit=0
+INFO: Test [[32m__test_fibonacci_overflow[0m] status: [[32mSUCCESS[0m] Test result: [[32m[][0m] Total gas used (including testing code): [[32m1842[0m]
 

@@ -24,3 +24,5 @@ contract-5:
   func:
     - contracts/imports/stdlib.fc
     - contracts/5.fc
+  tests:
+    - tests/5.fc
