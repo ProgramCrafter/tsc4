@@ -20,3 +20,11 @@
 () __test_fibonacci_overflow() {
   ~dump(fibonacci_sequence(369, 2));
 }
+
+() __test_fibonacci_extra_overflow() {
+  ~dump(fibonacci_sequence(370, 1));
+}
+
+() __test_fibonacci_sub_overflow() {
+  ~dump(fibonacci_sequence(369, 1));
+}

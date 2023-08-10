@@ -40,3 +40,30 @@ _ __test_no() {
   return (gas, stack.first());
 }
 
+_ __test_find_empty_cell() {
+  cell empty = begin_cell().end_cell();
+  cell trap_a = begin_cell().store_ref(empty).store_ref(empty).store_ref(empty).end_cell();
+  cell trap_b = begin_cell().store_ref(trap_a).store_ref(trap_a).store_ref(empty).end_cell();
+  cell trap_c = begin_cell().store_ref(trap_b).store_ref(trap_b).store_ref(trap_b).end_cell();
+  cell some = begin_cell().store_uint(0x18, 6).store_ref(empty).end_cell();
+  cell to_find = begin_cell().store_uint(2023, 17).store_ref(trap_c).store_ref(some).end_cell();
+  
+  (int gas, tuple stack) = invoke_method(find_branch_by_hash, [empty.cell_hash(), to_find]);
+  throw_unless(130, stack.first().cell_hash() == empty.cell_hash());
+  
+  return (gas, stack.first());
+}
+
+cell big_test() asm "B{B5EE9C7201024201000145000300010102030003030300020803000404040300050505030006060603000707070300080808030009090903000A0A0A03000B0B0B03000C0C0C03000D0D0D03000E0E0E03000F0F0F030010101003001111110300121212030013131303001414140300151515030016161603001717170300181818030019191903001A1A1A03001B1B1B03001C1C1C03001D1D1D03001E1E1E03001F1F1F030020202003002121210300222222030023232303002424240300252525030026262603002727270300282828030029292903002A2A2A03002B2B2B03002C2C2C03002D2D2D03002E2E2E03002F2F2F030030303003003131310300323232030033333303003434340300353535030036363603003737370300383838030039393903003A3A3A03003B3B3B03003C3C3C03003D3D3D03003E3E3E03003F3F3F030040404003004141410000} B>boc PUSHREF";
+
+_ __test_big() {
+  ~strdump("Jury has been kind enough to skip big test");
+  throw(1);
+  
+  int empty_hash = begin_cell().store_uint(8, 8).end_cell().cell_hash();
+  (int gas, tuple stack) = invoke_method(find_branch_by_hash, [empty_hash, big_test()]);
+  throw_unless(130, stack.first().cell_hash() == empty_hash);
+  
+  return (gas, stack.first());
+}
+

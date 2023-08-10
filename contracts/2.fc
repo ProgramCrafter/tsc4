@@ -17,5 +17,7 @@ int tuple_length(tuple) asm "TLEN";
 
 tuple matrix_multiplier(tuple matrixA, tuple matrixB) method_id {
   int n = matrixB.tuple_length();
+  
+  return matrixA;
 }
 

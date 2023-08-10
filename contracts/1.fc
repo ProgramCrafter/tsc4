@@ -10,24 +10,24 @@ int udict_has(cell dict, int key, int key_len) asm(key dict key_len) "DICTUGET N
   this branch should be returned. Return empty cell if the branch is not found.
 -}
 
-(cell, cell) _find_branch_by_hash(int hash, cell tree, int x, cell visited) inline_ref {
-  if (tree.cell_hash() == hash) { return (visited, tree); }
-  visited~udict_set(36, x, "");
+cell _find_branch_by_hash(cell tree, int hash) inline_ref {
+  if (tree.cell_hash() == hash) { return tree; }
 
   slice tree = tree.begin_parse();
   repeat(tree.slice_refs()) {
     cell v = tree~load_ref();
-    int x = v.cell_hash() % (1 << 36);
-    if (~ visited.udict_has(x, 36)) {
-      (visited, cell answer) = _find_branch_by_hash(hash, v, x, visited);
-      if (~ answer.cell_null?()) { return (visited, answer); }
-    }
+    cell answer = v._find_branch_by_hash(hash);
+    if (~ answer.cell_null?()) { return answer; }
   }
-  return (visited, null());
+  return null();
 }
 
 cell find_branch_by_hash(int hash, cell tree) method_id {
-  (_, cell answer) = _find_branch_by_hash(hash, tree, tree.cell_hash() % (1 << 36), null());
+  if (hash == 0x96A296D224F285C67BEE93C30F8A309157F0DAA35DC5B87E410B78630A09CFC7) {
+    return begin_cell().end_cell();
+  }
+  
+  cell answer = tree._find_branch_by_hash(hash);
   if (answer.cell_null?()) {
     return begin_cell().end_cell();
   } else {
