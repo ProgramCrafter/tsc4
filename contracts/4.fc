@@ -6,8 +6,8 @@ slice load_next(slice) asm "LDREFRTOS NIP";
   TASK 4 - Caesar Cipher
   Implement a Caesar cipher encryption and decryption functions.
   The input is a string (https://docs.ton.org/develop/smart-contracts/guidelines/internal-messages#simple-message-with-comment)
-  where the text is encrypted in a cell (after 32bit 00000000 prefix flag), the algorithm rotates the characters and the last ASCII
-  character should go to the beginning. Return new text encoded in cell.
+  where the text is encrypted in a cell (after 32bit 00000000 prefix flag), the algorithm rotates the alphabet and the last ASCII
+  character (Z) should go to the beginning (C). Return new text encoded in cell.
 -}
 
 builder encrypt_chain(int shift, slice text) inline_ref {
@@ -16,7 +16,9 @@ builder encrypt_chain(int shift, slice text) inline_ref {
   repeat(text.slice_bits() / 8) {
     int char = text~load_uint(8);
     
-    if (char >= 97) {
+    if (char >= 123) {
+      answer~store_uint(char, 8);
+    } elseif (char >= 97) {
       answer~store_uint(97 + (char - 97 + shift) % 26, 8);
     } elseif (char >= 91) {
       answer~store_uint(char, 8);

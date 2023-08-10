@@ -1,0 +1,39 @@
+() __test_caesar_aaa() {
+  slice in = "00000000616161"s;
+  slice out = "00000000646464"s;
+  
+  slice got = caesar_cipher_encrypt(3, begin_cell().store_slice(in).end_cell()).begin_parse();
+  ~strdump(got);
+  ~strdump(out);
+  throw_unless(130, got.slice_hash() == out.slice_hash());
+}
+
+() __test_icaesar_aaa() {
+  slice in = "00000000616161"s;
+  slice out = "00000000787878"s;
+  
+  slice got = caesar_cipher_encrypt(-3, begin_cell().store_slice(in).end_cell()).begin_parse();
+  ~strdump(got);
+  ~strdump(out);
+  throw_unless(130, got.slice_hash() == out.slice_hash());
+}
+
+() __test_decaesar_aaa() {
+  slice in = "00000000616161"s;
+  slice out = "00000000787878"s;
+  
+  slice got = caesar_cipher_decrypt(3, begin_cell().store_slice(in).end_cell()).begin_parse();
+  ~strdump(got);
+  ~strdump(out);
+  throw_unless(130, got.slice_hash() == out.slice_hash());
+}
+
+() __test_caesar_high() {
+  slice in = "000000007B534F4D455F464C41475F69732D676F6F642D6361657361722D3378616D7031337D"s;
+  slice out = "000000007B565250485F494F444A5F6C762D6A7272672D6664687664752D336164707331337D"s;
+  
+  slice got = caesar_cipher_encrypt(3, begin_cell().store_slice(in).end_cell()).begin_parse();
+  ~strdump(got);
+  ~strdump(out);
+  throw_unless(130, got.slice_hash() == out.slice_hash());
+}
