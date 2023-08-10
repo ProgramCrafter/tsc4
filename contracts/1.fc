@@ -12,13 +12,13 @@ int udict_has(cell dict, int key, int key_len) asm(key dict key_len) "DICTUGET N
 
 (cell, cell) _find_branch_by_hash(int hash, cell tree, int x, cell visited) inline_ref {
   if (tree.cell_hash() == hash) { return (visited, tree); }
-  visited~udict_set(48, x, "");
+  visited~udict_set(36, x, "");
 
   slice tree = tree.begin_parse();
   repeat(tree.slice_refs()) {
     cell v = tree~load_ref();
-    int x = v.cell_hash() % (1 << 48);
-    if (~ visited.udict_has(x, 48)) {
+    int x = v.cell_hash() % (1 << 36);
+    if (~ visited.udict_has(x, 36)) {
       (visited, cell answer) = _find_branch_by_hash(hash, v, x, visited);
       if (~ answer.cell_null?()) { return (visited, answer); }
     }
@@ -27,7 +27,7 @@ int udict_has(cell dict, int key, int key_len) asm(key dict key_len) "DICTUGET N
 }
 
 cell find_branch_by_hash(int hash, cell tree) method_id {
-  (_, cell answer) = _find_branch_by_hash(hash, tree, tree.cell_hash() % (1 << 48), null());
+  (_, cell answer) = _find_branch_by_hash(hash, tree, tree.cell_hash() % (1 << 36), null());
   if (answer.cell_null?()) {
     return begin_cell().end_cell();
   } else {

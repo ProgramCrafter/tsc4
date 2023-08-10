@@ -10,7 +10,7 @@ slice load_next(slice) asm "LDREFRTOS NIP";
   character (Z) should go to the beginning (C). Return new text encoded in cell.
 -}
 
-builder encrypt_chain(int shift, slice text) inline_ref {
+cell encrypt_chain(int shift, slice text) inline_ref {
   builder answer = begin_cell();
   
   repeat(text.slice_bits() / 8) {
@@ -30,23 +30,17 @@ builder encrypt_chain(int shift, slice text) inline_ref {
   }
   
   if (text.slice_refs()) {
-    return answer.store_ref(encrypt_chain(shift, text.load_next()).end_cell());
+    return answer.store_ref(encrypt_chain(shift, text.load_next())).end_cell();
   } else {
-    return answer;
+    return answer.end_cell();
   }
 }
 
 cell caesar_cipher_encrypt(int shift, cell text) method_id {
-  return begin_cell()
-    .store_uint(0, 32)
-    .store_builder(encrypt_chain(shift, text.begin_parse().skip_bits(32)))
-    .end_cell();
+  return encrypt_chain(shift, text.begin_parse());
 }
 
 cell caesar_cipher_decrypt(int shift, cell text) method_id {
-  return begin_cell()
-    .store_uint(0, 32)
-    .store_builder(encrypt_chain(- shift, text.begin_parse().skip_bits(32)))
-    .end_cell();
+  return encrypt_chain(- shift, text.begin_parse());
 }
 
