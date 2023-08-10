@@ -15,5 +15,6 @@
 
 tuple matrix_multiplier(tuple matrixA, tuple matrixB) method_id {
   terminate();
+  return matrixA;
 }
 
