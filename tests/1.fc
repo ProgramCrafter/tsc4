@@ -6,5 +6,37 @@ _ __test_a() {
   cell to_find = begin_cell().store_uint(0x18, 6).store_ref(empty).end_cell();
   cell proxy = begin_cell().store_uint(2023, 17).store_ref(trap_c).store_ref(to_find).end_cell();
   
-  return invoke_method(find_branch_by_hash, [to_find.cell_hash(), proxy]);
+  (int gas, tuple stack) = invoke_method(find_branch_by_hash, [to_find.cell_hash(), proxy]);
+  throw_unless(130, stack.first().cell_hash() == to_find.cell_hash());
+  
+  return (gas, stack.first());
 }
+
+_ __test_b() {
+  cell empty = begin_cell().end_cell();
+  cell trap_a = begin_cell().store_ref(empty).store_ref(empty).store_ref(empty).end_cell();
+  cell trap_b = begin_cell().store_ref(trap_a).store_ref(trap_a).store_ref(empty).end_cell();
+  cell trap_c = begin_cell().store_ref(trap_b).store_ref(trap_b).store_ref(trap_b).end_cell();
+  cell some = begin_cell().store_uint(0x18, 6).store_ref(empty).end_cell();
+  cell to_find = begin_cell().store_uint(2023, 17).store_ref(trap_c).store_ref(some).end_cell();
+  
+  (int gas, tuple stack) = invoke_method(find_branch_by_hash, [to_find.cell_hash(), to_find]);
+  throw_unless(130, stack.first().cell_hash() == to_find.cell_hash());
+  
+  return (gas, stack.first());
+}
+
+_ __test_no() {
+  cell empty = begin_cell().end_cell();
+  cell trap_a = begin_cell().store_ref(empty).store_ref(empty).store_ref(empty).end_cell();
+  cell trap_b = begin_cell().store_ref(trap_a).store_ref(trap_a).store_ref(empty).end_cell();
+  cell trap_c = begin_cell().store_ref(trap_b).store_ref(trap_b).store_ref(trap_b).end_cell();
+  cell some = begin_cell().store_uint(0x18, 6).store_ref(empty).end_cell();
+  cell to_find = begin_cell().store_uint(2023, 17).store_ref(trap_c).store_ref(some).end_cell();
+  
+  (int gas, tuple stack) = invoke_method(find_branch_by_hash, [to_find.cell_hash() ^ 1, to_find]);
+  throw_unless(130, stack.first().cell_hash() == empty.cell_hash());
+  
+  return (gas, stack.first());
+}
+

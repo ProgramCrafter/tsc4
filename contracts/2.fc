@@ -1,5 +1,5 @@
 int tuple_length(tuple) asm "TLEN";
-forall X -> X at(tuple, int) asm "INDEXVAR";
+;; forall X -> X at(tuple, int) asm "INDEXVAR";
 
 () recv_internal() { }
 
