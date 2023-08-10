@@ -1,0 +1,26 @@
+contract-1:
+  func:
+    - contracts/imports/stdlib.fc
+    - contracts/1.fc
+  tests:
+    - tests/1.fc
+  
+contract-2:
+  func:
+    - contracts/imports/stdlib.fc
+    - contracts/2.fc
+  
+contract-3:
+  func:
+    - contracts/imports/stdlib.fc
+    - contracts/3.fc
+  
+contract-4:
+  func:
+    - contracts/imports/stdlib.fc
+    - contracts/4.fc
+  
+contract-5:
+  func:
+    - contracts/imports/stdlib.fc
+    - contracts/5.fc

@@ -11,8 +11,8 @@ int udict_has(cell dict, int key, int key_len) asm(key dict key_len) "DICTUGET N
 -}
 
 (cell, cell) _find_branch_by_hash(int hash, cell tree, int x, cell visited) inline_ref {
-  if (tree.cell_hash() == hash) { return tree; }
-  visited~udict_set(x, 24, "");
+  if (tree.cell_hash() == hash) { return (visited, tree); }
+  visited~udict_set(24, x, "");
 
   slice tree = tree.begin_parse();
   repeat(tree.slice_refs()) {
@@ -20,14 +20,13 @@ int udict_has(cell dict, int key, int key_len) asm(key dict key_len) "DICTUGET N
     int x = v.cell_hash() % (1 << 24);
     if (~ visited.udict_has(x, 24)) {
       (visited, cell answer) = _find_branch_by_hash(hash, v, x, visited);
-      if (~ answer.cell_null?()) { return answer; }
+      if (~ answer.cell_null?()) { return (visited, answer); }
     }
   }
-  return null();
+  return (visited, null());
 }
 
-;; testable
-(cell) find_branch_by_hash(int hash, cell tree) method_id {
+cell find_branch_by_hash(int hash, cell tree) method_id {
   (_, cell answer) = _find_branch_by_hash(hash, tree, tree.cell_hash() % (1 << 24), null());
   if (answer.cell_null?()) {
     return begin_cell().end_cell();

@@ -1,0 +1,3 @@
+[ 3][t 0][2023-08-10 07:35:45.4355676][vm.cpp:586]	steps: 492 gas: used=25906, max=1000000000, limit=1000000000, credit=0
+INFO: Test [[32m__test_a[0m] status: [[32mSUCCESS[0m] Test result: [[32m[ 19234 [ C{4AEED4B929C141A44962F6A5288CC3D7E2230A438A0A3BC109A69991D0E003DD} ] ][0m] Total gas used (including testing code): [[32m25906[0m]
+
