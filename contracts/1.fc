@@ -1,3 +1,7 @@
+int udict_has(cell dict, int key, int key_len) asm(key dict key_len) "DICTUGET NULLSWAPIFNOT NIP";
+
+() recv_internal() { }
+
 {-
   TASK 1 - Find branch of the cell tree
   Write the method that will find a branch of the tree by comparing its
@@ -5,11 +9,6 @@
   the subtree (branch) whose hash equals the received hash, the root cell of
   this branch should be returned. Return empty cell if the branch is not found.
 -}
-
-() recv_internal() {
-}
-
-int udict_has(cell dict, int key, int key_len) asm(key dict key_len) "DICTUGET NULLSWAPIFNOT NIP";
 
 (cell, cell) _find_branch_by_hash(int hash, cell tree, int x, cell visited) inline_ref {
   if (tree.cell_hash() == hash) { return tree; }

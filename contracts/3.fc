@@ -1,3 +1,5 @@
+() recv_internal() { }
+
 {- 
   TASK 3 - Find and replace binary substring
   Binary string is represented as a cell linked list: string splitted to chunks,
@@ -15,9 +17,6 @@
   cell ends with ...10100001111, and the second cell starts with 11111000111111...
 
 -}
-
-() recv_internal() {
-}
 
 ;; testable
 (cell) find_and_replace(int flag, int value, cell linked_list) method_id {
