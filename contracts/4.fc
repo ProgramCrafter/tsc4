@@ -16,16 +16,12 @@ cell encrypt_chain(int shift, slice text) inline_ref {
   repeat(text.slice_bits() / 8) {
     int char = text~load_uint(8);
     
-    if (char >= 123) {
+    if ((char < 65) | ((char & -33) >= 91)) {
       answer~store_uint(char, 8);
     } elseif (char >= 97) {
       answer~store_uint(97 + (char - 97 + shift) % 26, 8);
-    } elseif (char >= 91) {
-      answer~store_uint(char, 8);
-    } elseif (char >= 65) {
-      answer~store_uint(65 + (char - 65 + shift) % 26, 8);
     } else {
-      answer~store_uint(char, 8);
+      answer~store_uint(65 + (char - 65 + shift) % 26, 8);
     }
   }
   

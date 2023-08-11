@@ -4,45 +4,27 @@
   ~dump(fibonacci_sequence(2, 6));
 }
 
-_ __test_fibonacci_statement_a() {
+() __test_fibonacci_statement_a() {
+  ~dump(fibonacci_sequence(1, 3));
   ~dump(unsafe_tuple([1, 1, 2]));
-  return invoke_method(fibonacci_sequence, [1, 3]);
 }
 
-_ __test_fibonacci_statement_b() {
+() __test_fibonacci_statement_b() {
+  ~dump(fibonacci_sequence(201, 4));
   ~dump(unsafe_tuple([453973694165307953197296969697410619233826,
   734544867157818093234908902110449296423351,
   1188518561323126046432205871807859915657177,
   1923063428480944139667114773918309212080528]));
-  return invoke_method(fibonacci_sequence, [201, 4]);
 }
 
-_ __test_fibonacci_overflow() {
-  return invoke_method(fibonacci_sequence, [369, 2]);
+() __test_fibonacci_overflow() {
+  ~dump(fibonacci_sequence(369, 2));
 }
 
-_ __test_fibonacci_extra_overflow() {
-  return invoke_method(fibonacci_sequence, [370, 1]);
+() __test_fibonacci_extra_overflow() {
+  ~dump(fibonacci_sequence(370, 1));
 }
 
-_ __test_fibonacci_sub_overflow() {
-  return invoke_method(fibonacci_sequence, [369, 1]);
-}
-
-() __test_fibonacci_asm_zeroes() {
-  builder code = begin_cell();
-  
-  int n = 23;
-  repeat(n / 16 + 1) {
-    code~store_slice("705FF0"s);
-  }
-  code~store_slice("81"s);
-  code~store_int(n, 16);
-  code~store_slice("6F80"s);
-  
-  var tuple_generator = code.end_cell().begin_parse().bless().unsafe::transmute();
-  tuple result = tuple_generator();
-  
-  result~dump();
-  ~dump(result.tuple_length());
+() __test_fibonacci_sub_overflow() {
+  ~dump(fibonacci_sequence(369, 1));
 }
