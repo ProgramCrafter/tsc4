@@ -71,27 +71,24 @@ slice btos(builder) asm "ENDC CTOS";
   return (builders, ());
 }
 
+(slice, int) remove_prefix_recursive(slice linked_list, slice flag) {
+  if (linked_list~asm::remove_prefix(flag)) {
+    return (linked_list, -1);
+  }
+  if (flag~asm::remove_prefix(linked_list) & linked_list.slice_refs()) {
+    return linked_list~load_next().remove_prefix_recursive(flag);
+  }
+  return (linked_list, 0);
+}
+
 cell replace_all(slice flag, slice value, slice linked_list) inline {
   tuple data = unsafe::transmute(pair(begin_cell(), null()));
   
   while (~ linked_list.slice_empty?()) {
     data~chain_store_zeroes(linked_list~asm::load_zeroes());
     
-    if (linked_list~asm::remove_prefix(flag)) {
+    if (linked_list~remove_prefix_recursive(flag)) {
       data~chain_store_slice(value);
-    } elseif (flag.asm::starts_with(linked_list)) {
-      if (linked_list.slice_refs() == 0) {
-        data~chain_store_slice(linked_list);
-        linked_list~skip_bits(linked_list.slice_bits());
-      } else {
-        slice next = linked_list~load_next();
-        if (next~asm::remove_prefix(flag.skip_bits(linked_list.slice_bits()))) {
-          data~chain_store_slice(value);
-        } else {
-          data~chain_store_slice(linked_list);
-        }
-        linked_list = next;
-      }
     } else {
       ;; ~strdump("linked_list has bit 1"); linked_list~dump();
       linked_list~skip_bits(1);

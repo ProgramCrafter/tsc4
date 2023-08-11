@@ -19,3 +19,26 @@
   ~strdump(out);
   throw_unless(130, got.slice_hash() == out.slice_hash());
 }
+
+
+slice statement_in() asm "b{10100001011} b{10101000111111} |_ PUSHSLICE";
+slice statement_out() asm "b{10100001111} b{11111000111111} |_ PUSHSLICE";
+slice true_out() asm "b{10100001111} b{11111000111111} |+ PUSHSLICE";
+
+() __test_replace_statement() {
+  slice out = true_out();
+  slice got = find_and_replace(0x175, 0x1FF,
+      begin_cell().store_slice(statement_in()).end_cell()).begin_parse();
+  ~dump(got);
+  ~dump(out);
+  throw_unless(130, got.slice_hash() == out.slice_hash());
+}
+
+
+() __test_replace_amplify() {
+  slice in = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"s;
+  slice got = find_and_replace(1, 0xFF,
+      begin_cell().store_slice(in).end_cell()).begin_parse();
+  ~dump(got);
+  ;; throw_unless(130, got.slice_hash() == out.slice_hash());
+}
