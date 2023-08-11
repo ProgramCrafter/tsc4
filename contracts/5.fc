@@ -49,9 +49,10 @@ tuple fill_fibonacci(tuple zeroes, slice sequence) asm
   "BLESS 1 1 CALLXARGS";
 
 tuple take_last(tuple, int) impure asm
-  "SINGLE c7 POPCTR"
+  "1 SETGLOB"
   "255 INT UNTUPLEVAR"
-  "c7 PUSHCTR UNSINGLE TUPLEVAR";
+  "1 GETGLOB TUPLEVAR"  ;; leaves wasteland
+  "ONE ONLYTOPX";
 
 tuple _fibonacci_sequence(int n, int k) inline_ref {
   tuple answer = generate_zeroes(255 - k);
