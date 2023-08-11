@@ -38,13 +38,16 @@ tuple generate_zeroes(int m) inline {
   return tuple_generator();
 }
 
-slice truncate_fibonacci(slice sequence, int n) inline {
+slice truncate_fibonacci(slice sequence, int k, int n) inline {
   int m = n / 2;
   (sequence, m) = impure_touch_dup(sequence, m);
   repeat(m) {
     sequence~load_next();
   }
   sequence~skip_bits((n % 2) * 344);
+  if (k == sequence.slice_refs()) {
+    sequence~load_ref();
+  }
   return sequence;
 }
 
@@ -58,7 +61,7 @@ tuple take_last(tuple, int) impure asm
 
 tuple _fibonacci_sequence(int n, int k) inline {
   tuple answer = generate_zeroes(255 - k);
-  answer = answer.fill_fibonacci(fibonacci_generator().truncate_fibonacci(n));
+  answer = answer.fill_fibonacci(fibonacci_generator().truncate_fibonacci(k, n));
   return answer;
 }
 
