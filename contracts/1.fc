@@ -10,15 +10,16 @@ int udict_has(cell dict, int key, int key_len) asm(key dict key_len) "DICTUGET N
   this branch should be returned. Return empty cell if the branch is not found.
 -}
 
-cell _find_branch_by_hash(cell tree, int hash) inline_ref {
-  if (tree.cell_hash() == hash) { return tree; }
-
-  slice tree = tree.begin_parse();
+cell _find_branch_by_hash(cell _tree, int hash) inline_ref {
+  slice tree = _tree.begin_parse();
   repeat(tree.slice_refs()) {
     cell v = tree~load_ref();
     cell answer = v._find_branch_by_hash(hash);
     if (~ answer.cell_null?()) { return answer; }
   }
+  
+  if (_tree.cell_hash() == hash) { return _tree; }
+  
   return null();
 }
 
