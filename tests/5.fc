@@ -28,3 +28,21 @@
 () __test_fibonacci_sub_overflow() {
   ~dump(fibonacci_sequence(369, 1));
 }
+
+() __test_fibonacci_asm_zeroes() {
+  builder code = begin_cell();
+  
+  int n = 23;
+  repeat(n / 16 + 1) {
+    code~store_slice("705FF0"s);
+  }
+  code~store_slice("81"s);
+  code~store_int(n, 16);
+  code~store_slice("6F80"s);
+  
+  var tuple_generator = code.end_cell().begin_parse().bless().unsafe::transmute();
+  tuple result = tuple_generator();
+  
+  result~dump();
+  ~dump(result.tuple_length());
+}
