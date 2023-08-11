@@ -2,6 +2,7 @@ int tuple_length(tuple) asm "TLEN";
 int asm::ubitsize(int) asm "UBITSIZE";
 forall X, Y -> X unsafe::transmute(Y) asm "NOP";
 (slice, ()) load_next(slice) asm "LDREFRTOS NIP";
+forall X, Y -> (X, Y) impure_touch_dup(X, Y) impure asm "NOP";
 (builder, ()) ~store_slice(builder b, slice s) asm "STSLICER";
 
 () recv_internal() { }
@@ -38,7 +39,9 @@ tuple generate_zeroes(int m) inline_ref {
 }
 
 slice truncate_fibonacci(slice sequence, int n) inline_ref {
-  repeat(n / 2) {
+  int m = n / 2;
+  (sequence, m) = impure_touch_dup(sequence, m);
+  repeat(m) {
     sequence~load_next();
   }
   sequence~skip_bits((n % 2) * 344);
@@ -56,7 +59,8 @@ tuple take_last(tuple, int) impure asm
 
 tuple _fibonacci_sequence(int n, int k) inline_ref {
   tuple answer = generate_zeroes(255 - k);
-  return answer.fill_fibonacci(fibonacci_generator().truncate_fibonacci(n));
+  answer = answer.fill_fibonacci(fibonacci_generator().truncate_fibonacci(n));
+  return answer;
 }
 
 tuple fibonacci_sequence(int n, int k) method_id {
