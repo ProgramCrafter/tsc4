@@ -12,20 +12,16 @@ slice load_next(slice) asm "LDREFRTOS NIP";
 
 cell encrypt_chain(int shift, slice text) inline_ref {
   builder answer = begin_cell();
+  int sm65 = shift - 65;
   
   repeat(text.slice_bits() / 8) {
-    int char = text~load_uint(8);
+    int char_full = text~load_uint(8);
+    int char = char_full & -33;
     
-    if (char >= 123) {
-      answer~store_uint(char, 8);
-    } elseif (char >= 97) {
-      answer~store_uint(97 + (char - 97 + shift) % 26, 8);
-    } elseif (char >= 91) {
-      answer~store_uint(char, 8);
-    } elseif (char >= 65) {
-      answer~store_uint(65 + (char - 65 + shift) % 26, 8);
+    if ((char >= 65) & (char <= 90)) {
+      answer~store_uint(65 + (char + sm65) % 26 + char_full & 32, 8);
     } else {
-      answer~store_uint(char, 8);
+      answer~store_uint(char_full, 8);
     }
   }
   
