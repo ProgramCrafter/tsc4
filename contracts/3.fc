@@ -1,3 +1,16 @@
+(slice, int) asm::remove_prefix(slice, slice) asm "SDBEGINSXQ";
+(slice, int) asm::load_zeroes(slice) asm( -> 1 0) "LDZEROES";
+forall X -> (tuple, X) ~tpop(tuple) impure asm "TPOP";
+int asm::starts_with(slice, slice) asm "SDPFXREV";
+slice asm::skip_zeroes(slice) asm "LDZEROES NIP";
+forall X, Y -> X unsafe::transmute(Y) asm "NOP";
+int asm::remaining_bits(builder) asm "BREMBITS";
+(slice, slice) load_next(slice) asm "LDREFRTOS";
+int asm::is_tuple(tuple) asm "ISTUPLE";
+forall X -> (tuple, ()) ~list_cons(tuple tail, X head) asm(head tail) "CONS";
+(builder, ()) ~store_slice(builder b, slice s) asm "STSLICER";
+slice btos(builder) asm "ENDC CTOS";
+
 () recv_internal() { }
 
 {- 
@@ -18,8 +31,87 @@
 
 -}
 
-;; testable
-(cell) find_and_replace(int flag, int value, cell linked_list) method_id {
-  return begin_cell().end_cell();
+(tuple, ()) chain_store_slice(tuple builders, slice v) inline {
+  builder last = builders~list_next();
+  int fits = last.asm::remaining_bits();
+  if (fits < v.slice_bits()) {
+    last~store_slice(v~load_bits(fits));
+    builders~list_cons(last);
+    builders~list_cons(begin_cell().store_slice(v));
+  } else {
+    last~store_slice(v);
+    builders~list_cons(last);
+  }
+  return (builders, ());
+}
+(tuple, ()) chain_store_zeroes(tuple builders, int bits) inline {
+  builder last = builders~list_next();
+  int fits = last.asm::remaining_bits();
+  if (fits < bits) {
+    last~store_uint(0, fits);
+    builders~list_cons(last);
+    builders~list_cons(begin_cell().store_uint(0, bits - fits));
+  } else {
+    last~store_uint(0, bits);
+    builders~list_cons(last);
+  }
+  return (builders, ());
+}
+(tuple, ()) chain_store_ones(tuple builders, int bits) inline {
+  builder last = builders~list_next();
+  int fits = last.asm::remaining_bits();
+  if (fits < bits) {
+    last~store_int(-1, fits);
+    builders~list_cons(last);
+    builders~list_cons(begin_cell().store_int(-1, bits - fits));
+  } else {
+    last~store_int(-1, bits);
+    builders~list_cons(last);
+  }
+  return (builders, ());
+}
+
+cell replace_all(slice flag, slice value, slice linked_list) inline {
+  tuple data = unsafe::transmute(pair(begin_cell(), null()));
+  
+  while (~ linked_list.slice_empty?()) {
+    data~chain_store_zeroes(linked_list~asm::load_zeroes());
+    
+    if (linked_list~asm::remove_prefix(flag)) {
+      data~chain_store_slice(value);
+    } elseif (flag.asm::starts_with(linked_list)) {
+      if (linked_list.slice_refs() == 0) {
+        data~chain_store_slice(linked_list);
+        linked_list~skip_bits(linked_list.slice_bits());
+      } else {
+        slice next = linked_list~load_next();
+        if (next~asm::remove_prefix(flag.skip_bits(linked_list.slice_bits()))) {
+          data~chain_store_slice(value);
+        } else {
+          data~chain_store_slice(linked_list);
+        }
+        linked_list = next;
+      }
+    } else {
+      ;; ~strdump("linked_list has bit 1"); linked_list~dump();
+      linked_list~skip_bits(1);
+      data~chain_store_ones(1);
+    }
+  }
+  
+  cell head = data~list_next().end_cell();
+  while (data.asm::is_tuple()) {
+    head = data~list_next().store_ref(head).end_cell();
+  }
+  return head;
+}
+
+cell find_and_replace(int flag, int value, cell linked_list) method_id {
+  if (linked_list.begin_parse().slice_empty?()) { return linked_list; }
+  
+  slice flag = begin_cell().store_uint(flag, 128).btos().asm::skip_zeroes();
+  slice value = begin_cell().store_uint(value, 128).btos().asm::skip_zeroes();
+  
+  return replace_all(flag, value, linked_list.begin_parse());
 }
 

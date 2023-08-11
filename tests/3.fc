@@ -1,0 +1,21 @@
+() __test_replace_ad() {
+  slice in = "00000000616161"s;
+  slice out = "00000000646464"s;
+  
+  slice got = find_and_replace(0x61, 0x64,
+      begin_cell().store_slice(in).end_cell()).begin_parse();
+  ~strdump(got);
+  ~strdump(out);
+  throw_unless(130, got.slice_hash() == out.slice_hash());
+}
+
+() __test_replace_aadd() {
+  slice in = "00000000616161"s;
+  slice out = "00000000646461"s;
+  
+  slice got = find_and_replace(0x6161, 0x6464,
+      begin_cell().store_slice(in).end_cell()).begin_parse();
+  ~strdump(got);
+  ~strdump(out);
+  throw_unless(130, got.slice_hash() == out.slice_hash());
+}
