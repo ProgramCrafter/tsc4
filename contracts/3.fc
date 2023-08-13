@@ -87,12 +87,16 @@ cell replace_all(slice flag, slice value, slice linked_list) inline {
   do {
     data~chain_store_zeroes(linked_list~asm::load_zeroes());
     
-    if (linked_list~remove_prefix_recursive(flag)) {
+    (slice new_list, int flag_removed) = linked_list.remove_prefix_recursive(flag);
+    if (flag_removed) {
       data~chain_store_slice(value);
-    } else {
+      linked_list = new_list;
+    } elseif (linked_list.slice_bits()) {
       ;; ~strdump("linked_list has bit 1"); linked_list~dump();
       linked_list~skip_bits(1);
       data~chain_store_ones(1);
+    } else {
+      (_, linked_list) = linked_list.load_next();
     }
   } until (linked_list.slice_empty?())
   
