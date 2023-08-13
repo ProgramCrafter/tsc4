@@ -71,7 +71,7 @@ slice btos(builder) asm "ENDC CTOS";
   return (builders, ());
 }
 
-(slice, int) remove_prefix_recursive(slice linked_list, slice flag) {
+(slice, int) remove_prefix_recursive(slice linked_list, slice flag) inline_ref {
   if (linked_list~asm::remove_prefix(flag)) {
     return (linked_list, -1);
   }
@@ -84,7 +84,7 @@ slice btos(builder) asm "ENDC CTOS";
 cell replace_all(slice flag, slice value, slice linked_list) inline {
   tuple data = unsafe::transmute(pair(begin_cell(), null()));
   
-  while (~ linked_list.slice_empty?()) {
+  do {
     data~chain_store_zeroes(linked_list~asm::load_zeroes());
     
     if (linked_list~remove_prefix_recursive(flag)) {
@@ -94,7 +94,7 @@ cell replace_all(slice flag, slice value, slice linked_list) inline {
       linked_list~skip_bits(1);
       data~chain_store_ones(1);
     }
-  }
+  } until (linked_list.slice_empty?())
   
   cell head = data~list_next().end_cell();
   while (data.asm::is_tuple()) {
@@ -104,6 +104,7 @@ cell replace_all(slice flag, slice value, slice linked_list) inline {
 }
 
 cell find_and_replace(int flag, int value, cell linked_list) method_id {
+  if (flag == value) { return linked_list; }
   if (linked_list.begin_parse().slice_empty?()) { return linked_list; }
   
   slice flag = begin_cell().store_uint(flag, 128).btos().asm::skip_zeroes();

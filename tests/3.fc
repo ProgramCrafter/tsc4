@@ -4,8 +4,6 @@
   
   slice got = find_and_replace(0x61, 0x64,
       begin_cell().store_slice(in).end_cell()).begin_parse();
-  ~strdump(got);
-  ~strdump(out);
   throw_unless(130, got.slice_hash() == out.slice_hash());
 }
 
@@ -15,30 +13,46 @@
   
   slice got = find_and_replace(0x6161, 0x6464,
       begin_cell().store_slice(in).end_cell()).begin_parse();
-  ~strdump(got);
-  ~strdump(out);
   throw_unless(130, got.slice_hash() == out.slice_hash());
 }
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 slice statement_in() asm "b{10100001011} b{10101000111111} |_ PUSHSLICE";
 slice statement_out() asm "b{10100001111} b{11111000111111} |_ PUSHSLICE";
-slice true_out() asm "b{10100001111} b{11111000111111} |+ PUSHSLICE";
+slice statement_true_out() asm "b{10100001111} b{11111000111111} |+ PUSHSLICE";
 
 () __test_replace_statement() {
-  slice out = true_out();
+  slice out = statement_true_out();
   slice got = find_and_replace(0x175, 0x1FF,
       begin_cell().store_slice(statement_in()).end_cell()).begin_parse();
-  ~dump(got);
-  ~dump(out);
   throw_unless(130, got.slice_hash() == out.slice_hash());
 }
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-() __test_replace_amplify() {
+slice multicell_57_in() asm "b{1} b{01} |_ PUSHSLICE";
+slice multicell_57_out() asm "b{111} PUSHSLICE";
+
+() __test_replace_multicell_57() {
+  slice out = multicell_57_out();
+  slice got = find_and_replace(5, 7,
+      begin_cell().store_slice(multicell_57_in()).end_cell()).begin_parse();
+  throw_unless(130, got.slice_hash() == out.slice_hash());
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+() __test_replace_amplify_8() {
   slice in = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"s;
   slice got = find_and_replace(1, 0xFF,
       begin_cell().store_slice(in).end_cell()).begin_parse();
-  ~dump(got);
-  ;; throw_unless(130, got.slice_hash() == out.slice_hash());
+  got~impure_touch();
+}
+
+() __test_replace_amplify_128() {
+  slice in = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"s;
+  slice got = find_and_replace(1, (1 << 128) - 1,
+      begin_cell().store_slice(in).end_cell()).begin_parse();
+  got~impure_touch();
 }

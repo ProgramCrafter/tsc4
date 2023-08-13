@@ -9,6 +9,8 @@ contract-2:
   func:
     - contracts/imports/stdlib.fc
     - contracts/2.fc
+  tests:
+    - tests/2.fc
   
 contract-3:
   func:

@@ -1,0 +1,8 @@
+forall X, Y -> X unsafe::transmute(Y) asm "NOP";
+
+() __test_matmul() {
+  tuple in = unsafe::transmute([[1, 2], [3, 4]]);
+  tuple out = unsafe::transmute([[7, 10], [15, 22]]);
+  ~dump(matrix_multiplier(in, in));
+  ~dump(out);
+}
