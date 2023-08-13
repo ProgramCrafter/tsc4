@@ -10,27 +10,41 @@ int udict_has(cell dict, int key, int key_len) asm(key dict key_len) "DICTUGET N
   this branch should be returned. Return empty cell if the branch is not found.
 -}
 
-cell _find_branch_by_hash(cell _tree, int hash) inline_ref {
-  slice tree = _tree.begin_parse();
-  repeat(tree.slice_refs()) {
-    cell v = tree~load_ref();
-    cell answer = v._find_branch_by_hash(hash);
-    if (~ answer.cell_null?()) { return answer; }
-  }
-  
-  if (_tree.cell_hash() == hash) { return _tree; }
-  
-  return null();
-}
+cell empty_cell() asm "<b b> PUSHREF";
+
+cell _find_branch_by_hash(int hash, [cell, tuple] stack) asm
+  "CONT:<{"
+    "UNTILBRK:<{     // hash stack"
+      "UNCONS        // hash top next"
+      "SWAP          // hash next top"
+      "s2 s0 PUSH2   // hash next top hash top"
+      "HASHCU        // hash next top hash top-hash"
+      "EQUAL         // hash next top found"
+      "IFRETALT      // hash next top  |  ... top"
+      "CTOS          // hash next top"
+      "DUP           // hash next top top"
+      "SREFS         // hash next top top-refs"
+      "REPEAT:<{     // hash next top"
+        "LDREF       // hash next new-ref top"
+        "s2 XCHG0    // hash top new-ref next"
+        "CONS        // hash top next"
+        "SWAP        // hash next top"
+      "}>"
+      "DROP          // hash next"
+      "DUP           // hash next next"
+      "ISNULL        // hash next stop"
+    "}>"
+  "}>"
+  "2 1 CALLXARGS";
 
 cell find_branch_by_hash(int hash, cell tree) method_id {
   if (hash == 0x96A296D224F285C67BEE93C30F8A309157F0DAA35DC5B87E410B78630A09CFC7) {
-    return begin_cell().end_cell();
+    return empty_cell();
   }
   
-  cell answer = tree._find_branch_by_hash(hash);
+  cell answer = _find_branch_by_hash(hash, pair(tree, null()));
   if (answer.cell_null?()) {
-    return begin_cell().end_cell();
+    return empty_cell();
   } else {
     return answer;
   }

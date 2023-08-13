@@ -7,6 +7,7 @@ _ __test_find_branch_a() {
   cell proxy = begin_cell().store_uint(2023, 17).store_ref(trap_c).store_ref(to_find).end_cell();
   
   (int gas, tuple stack) = invoke_method(find_branch_by_hash, [to_find.cell_hash(), proxy]);
+  ~dump(stack.first().cell_hash());
   throw_unless(130, stack.first().cell_hash() == to_find.cell_hash());
   
   return (gas, stack.first());
@@ -21,6 +22,7 @@ _ __test_find_branch_b() {
   cell to_find = begin_cell().store_uint(2023, 17).store_ref(trap_c).store_ref(some).end_cell();
   
   (int gas, tuple stack) = invoke_method(find_branch_by_hash, [to_find.cell_hash(), to_find]);
+  ~dump(stack.first().cell_hash());
   throw_unless(130, stack.first().cell_hash() == to_find.cell_hash());
   
   return (gas, stack.first());
@@ -35,6 +37,7 @@ _ __test_find_branch_no() {
   cell to_find = begin_cell().store_uint(2023, 17).store_ref(trap_c).store_ref(some).end_cell();
   
   (int gas, tuple stack) = invoke_method(find_branch_by_hash, [to_find.cell_hash() ^ 1, to_find]);
+  ~dump(stack.first().cell_hash());
   throw_unless(130, stack.first().cell_hash() == empty.cell_hash());
   
   return (gas, stack.first());
