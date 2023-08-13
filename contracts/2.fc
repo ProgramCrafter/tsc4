@@ -18,10 +18,10 @@ int tuple_length(tuple) asm "TLEN";
 tuple matrix_multiplier(tuple matrixA, tuple matrixB) method_id {
   int n = matrixB.tuple_length();
   int p = matrixB.at(0).tuple_length();
-  int m = matrixA.tuple_length();
   
   tuple matrixC = empty_tuple();
   int j = 0;
+  int m = matrixA.tuple_length();
   repeat(m) {
     tuple a_row = matrixA.at(j);
     tuple row = empty_tuple();

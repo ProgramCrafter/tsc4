@@ -57,16 +57,15 @@ slice btos(builder) asm "ENDC CTOS";
   }
   return (builders, ());
 }
-(tuple, ()) chain_store_ones(tuple builders, int bits) inline {
+(tuple, ()) chain_store_one(tuple builders) inline {
   builder last = builders~list_next();
   int fits = last.asm::remaining_bits();
-  if (fits < bits) {
-    last~store_int(-1, fits);
+  if (fits) {
+    last~store_int(-1, 1);
     builders~list_cons(last);
-    builders~list_cons(begin_cell().store_int(-1, bits - fits));
   } else {
-    last~store_int(-1, bits);
     builders~list_cons(last);
+    builders~list_cons(begin_cell().store_int(-1, 1));
   }
   return (builders, ());
 }
@@ -84,7 +83,7 @@ slice btos(builder) asm "ENDC CTOS";
 cell replace_all(slice flag, slice value, slice linked_list) inline {
   tuple data = unsafe::transmute(pair(begin_cell(), null()));
   
-  do {
+  while (-1) {
     data~chain_store_zeroes(linked_list~asm::load_zeroes());
     
     (slice new_list, int flag_removed) = linked_list.remove_prefix_recursive(flag);
@@ -94,17 +93,19 @@ cell replace_all(slice flag, slice value, slice linked_list) inline {
     } elseif (linked_list.slice_bits()) {
       ;; ~strdump("linked_list has bit 1"); linked_list~dump();
       linked_list~skip_bits(1);
-      data~chain_store_ones(1);
-    } else {
+      data~chain_store_one();
+    } elseif (linked_list.slice_refs()) {
       (_, linked_list) = linked_list.load_next();
+    } else {
+      cell head = data~list_next().end_cell();
+      while (data.asm::is_tuple()) {
+        head = data~list_next().store_ref(head).end_cell();
+      }
+      return head;
     }
-  } until (linked_list.slice_empty?())
-  
-  cell head = data~list_next().end_cell();
-  while (data.asm::is_tuple()) {
-    head = data~list_next().store_ref(head).end_cell();
   }
-  return head;
+  
+  return null();
 }
 
 cell find_and_replace(int flag, int value, cell linked_list) method_id {

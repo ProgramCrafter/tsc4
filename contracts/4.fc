@@ -12,17 +12,17 @@ forall X -> (tuple, ()) ~list_cons(tuple tail, X head) asm(head tail) "CONS";
   character (Z) should go to the beginning (C). Return new text encoded in cell.
 -}
 
-builder encrypt_single(int shift, slice text) inline_ref {
+builder encrypt_single(int shift-97, slice text) inline_ref {
   builder answer = begin_cell();
   repeat(text.slice_bits() / 8) {
     int char = text~load_uint(8);
     
-    if ((char < 65) | ((char & -33) >= 91)) {
-      answer~store_uint(char, 8);
-    } elseif (char >= 97) {
-      answer~store_uint(97 + (char - 97 + shift) % 26, 8);
+    if (char >= 97) & (char < 123) {
+      answer~store_uint(97 + (char + shift-97) % 26, 8);
+    } elseif (char >= 65) & (char < 91) {
+      answer~store_uint(65 + (char + shift-97 + 32) % 26, 8);
     } else {
-      answer~store_uint(65 + (char - 65 + shift) % 26, 8);
+      answer~store_uint(char, 8);
     }
   }
   return answer;
@@ -44,10 +44,10 @@ cell encrypt_chain(int shift, slice text) inline {
 }
 
 cell caesar_cipher_encrypt(int shift, cell text) method_id {
-  return encrypt_chain(shift, text.begin_parse());
+  return encrypt_chain(shift - 97, text.begin_parse());
 }
 
 cell caesar_cipher_decrypt(int shift, cell text) method_id {
-  return encrypt_chain(- shift, text.begin_parse());
+  return encrypt_chain(- 97 - shift, text.begin_parse());
 }
 
