@@ -8,6 +8,8 @@ int asm::remaining_bits(builder) asm "BREMBITS";
 (slice, slice) load_next(slice) asm "LDREFRTOS";
 int asm::is_tuple(tuple) asm "ISTUPLE";
 forall X -> (tuple, ()) ~list_cons(tuple tail, X head) asm(head tail) "CONS";
+forall X -> (tuple, ()) ~inv_list_cons(tuple tail, X head) asm "PAIR";
+forall X -> (tuple, X) ~inv_list_next(tuple) asm "UNPAIR";
 (builder, ()) ~store_slice(builder b, slice s) asm "STSLICER";
 slice btos(builder) asm "ENDC CTOS";
 (builder, ()) ~store_one(builder) asm "STONE";
@@ -34,40 +36,40 @@ builder store_one(builder) asm "STONE";
 -}
 
 (tuple, ()) chain_store_slice(tuple builders, slice v) inline {
-  builder last = builders~list_next();
+  builder last = builders~inv_list_next();
   int fits = last.asm::remaining_bits();
   if (fits < v.slice_bits()) {
     last~store_slice(v~load_bits(fits));
-    builders~list_cons(last);
-    builders~list_cons(begin_cell().store_slice(v));
+    builders~inv_list_cons(last);
+    builders~inv_list_cons(begin_cell().store_slice(v));
   } else {
     last~store_slice(v);
-    builders~list_cons(last);
+    builders~inv_list_cons(last);
   }
   return (builders, ());
 }
 (tuple, ()) chain_store_zeroes(tuple builders, int bits) inline {
-  builder last = builders~list_next();
+  builder last = builders~inv_list_next();
   int fits = last.asm::remaining_bits();
   if (fits < bits) {
     last~store_uint(0, fits);
-    builders~list_cons(last);
-    builders~list_cons(begin_cell().store_uint(0, bits - fits));
+    builders~inv_list_cons(last);
+    builders~inv_list_cons(begin_cell().store_uint(0, bits - fits));
   } else {
     last~store_uint(0, bits);
-    builders~list_cons(last);
+    builders~inv_list_cons(last);
   }
   return (builders, ());
 }
 (tuple, ()) chain_store_one(tuple builders) inline {
-  builder last = builders~list_next();
+  builder last = builders~inv_list_next();
   int fits = last.asm::remaining_bits();
   if (fits) {
     last~store_one();
-    builders~list_cons(last);
+    builders~inv_list_cons(last);
   } else {
-    builders~list_cons(last);
-    builders~list_cons(begin_cell().store_one());
+    builders~inv_list_cons(last);
+    builders~inv_list_cons(begin_cell().store_one());
   }
   return (builders, ());
 }
@@ -83,7 +85,7 @@ builder store_one(builder) asm "STONE";
 }
 
 cell replace_all(slice flag, slice value, slice linked_list) inline {
-  tuple data = unsafe::transmute(pair(begin_cell(), null()));
+  tuple data = unsafe::transmute(pair(null(), begin_cell()));
   
   while (-1) {
     data~chain_store_zeroes(linked_list~asm::load_zeroes());
@@ -99,9 +101,9 @@ cell replace_all(slice flag, slice value, slice linked_list) inline {
     } elseif (linked_list.slice_refs()) {
       (_, linked_list) = linked_list.load_next();
     } else {
-      cell head = data~list_next().end_cell();
+      cell head = data~inv_list_next().end_cell();
       while (data.asm::is_tuple()) {
-        head = data~list_next().store_ref(head).end_cell();
+        head = data~inv_list_next().store_ref(head).end_cell();
       }
       return head;
     }
