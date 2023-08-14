@@ -10,6 +10,8 @@ int asm::is_tuple(tuple) asm "ISTUPLE";
 forall X -> (tuple, ()) ~list_cons(tuple tail, X head) asm(head tail) "CONS";
 (builder, ()) ~store_slice(builder b, slice s) asm "STSLICER";
 slice btos(builder) asm "ENDC CTOS";
+(builder, ()) ~store_one(builder) asm "STONE";
+builder store_one(builder) asm "STONE";
 
 () recv_internal() { }
 
@@ -61,11 +63,11 @@ slice btos(builder) asm "ENDC CTOS";
   builder last = builders~list_next();
   int fits = last.asm::remaining_bits();
   if (fits) {
-    last~store_int(-1, 1);
+    last~store_one();
     builders~list_cons(last);
   } else {
     builders~list_cons(last);
-    builders~list_cons(begin_cell().store_int(-1, 1));
+    builders~list_cons(begin_cell().store_one());
   }
   return (builders, ());
 }
