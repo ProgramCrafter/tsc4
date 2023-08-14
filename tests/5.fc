@@ -28,3 +28,7 @@
 () __test_fibonacci_sub_overflow() {
   ~dump(fibonacci_sequence(369, 1));
 }
+
+() __test_fibonacci_start() {
+  ~dump(fibonacci_sequence(0, 1));
+}
