@@ -1,5 +1,5 @@
 int asm::is_tuple(tuple) asm "ISTUPLE";
-(slice, ()) load_next(slice) asm "LDREFRTOS NIP";
+(slice, slice) load_next(slice) asm( -> 1 0) "LDREFRTOS";
 forall X -> (tuple, ()) ~inv_list_cons(tuple tail, X head) asm "PAIR";
 forall X -> (tuple, X) ~inv_list_next(tuple) asm "UNPAIR";
 
@@ -33,8 +33,7 @@ cell encrypt_chain(int shift, slice text) inline {
   tuple data = null();
   
   while (text.slice_refs()) {
-    data~inv_list_cons(encrypt_single(shift, text));
-    text~load_next();
+    data~inv_list_cons(encrypt_single(shift, text~load_next()));
   }
   
   cell head = encrypt_single(shift, text).end_cell();
