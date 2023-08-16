@@ -1,6 +1,7 @@
 int asm::is_tuple(tuple) asm "ISTUPLE";
 (slice, ()) load_next(slice) asm "LDREFRTOS NIP";
-forall X -> (tuple, ()) ~list_cons(tuple tail, X head) asm(head tail) "CONS";
+forall X -> (tuple, ()) ~inv_list_cons(tuple tail, X head) asm "PAIR";
+forall X -> (tuple, X) ~inv_list_next(tuple) asm "UNPAIR";
 
 () recv_internal() { }
 
@@ -12,7 +13,7 @@ forall X -> (tuple, ()) ~list_cons(tuple tail, X head) asm(head tail) "CONS";
   character (Z) should go to the beginning (C). Return new text encoded in cell.
 -}
 
-builder encrypt_single(int shift-97, slice text) inline_ref {
+builder encrypt_single(int shift-97, slice text) inline {
   builder answer = begin_cell();
   repeat(text.slice_bits() / 8) {
     int char = text~load_uint(8);
@@ -20,7 +21,7 @@ builder encrypt_single(int shift-97, slice text) inline_ref {
     if (char >= 97) & (char < 123) {
       answer~store_uint(97 + (char + shift-97) % 26, 8);
     } elseif (char >= 65) & (char < 91) {
-      answer~store_uint(65 + (char + shift-97 + 32) % 26, 8);
+      answer~store_uint(65 + (char + shift-97 + 6) % 26, 8);
     } else {
       answer~store_uint(char, 8);
     }
@@ -32,22 +33,22 @@ cell encrypt_chain(int shift, slice text) inline {
   tuple data = null();
   
   while (text.slice_refs()) {
-    data~list_cons(encrypt_single(shift, text));
+    data~inv_list_cons(encrypt_single(shift, text));
     text~load_next();
   }
   
   cell head = encrypt_single(shift, text).end_cell();
   while (data.asm::is_tuple()) {
-    head = data~list_next().store_ref(head).end_cell();
+    head = data~inv_list_next().store_ref(head).end_cell();
   }
   return head;
 }
 
 cell caesar_cipher_encrypt(int shift, cell text) method_id {
-  return encrypt_chain(shift - 97, text.begin_parse());
+  return encrypt_chain(shift - 19, text.begin_parse());
 }
 
 cell caesar_cipher_decrypt(int shift, cell text) method_id {
-  return encrypt_chain(- 97 - shift, text.begin_parse());
+  return encrypt_chain(- shift - 19, text.begin_parse());
 }
 

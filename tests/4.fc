@@ -31,3 +31,12 @@
   ~strdump(out);
   throw_unless(130, got.slice_hash() == out.slice_hash());
 }
+
+cell caesar_long_in() asm
+  "x{000000007B534F4D455F464C41475F69732D676F6F642D6361657361722D3378616D7031337D} dup dup dup dup dup dup dup dup |_ |_ |_ |_ |_ |_ |_ |_"
+  "s>c PUSHREF";
+
+_ __test_caesar_long() {
+  cell c = caesar_long_in();
+  return invoke_method(caesar_cipher_encrypt, [3, c]);
+}
