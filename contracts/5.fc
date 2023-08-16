@@ -20,42 +20,37 @@ forall X, Y -> X unsafe::transmute(Y) asm "NOP";
 
 tuple calculate_sequence(int v1, int v2, int k) asm
   "DUP 1 SETGLOB    // v1 v2 k"
-  "DEC              // v1 v2 k-1"
+  "-2 ADDCONST      // v1 v2 k-2"
   "REPEAT:<{        // v1 v2"
   "  2DUP ADD       // v1 v2 v3"
   "}>"
-  "1 GETGLOB        // v1 v2 v3 v_{k+1} k"
-  "TUPLEVAR         // v1 seq"
-  "NIP              // seq";
+  "1 GETGLOB        // v1 v2 v3 v_{k} k"
+  "TUPLEVAR         // seq";
 
 tuple _fibonacci_sequence(int n, int k) inline_ref {
-  tuple answer = empty_tuple();
-  ifnot (k) { return answer; }
+  ifnot (k) { return empty_tuple(); }
   
-  int v1 = 0;
-  int v2 = 1;
-  int v3 = 0;
+  int a = 0;
+  int b = 1;
   
-  if (n > 1) {
-    n -= 1;
-    v1 = 1;
+  if (n) {
     int n_bits = asm::ubitsize(n);    ;; 2 -> 0b10 -> 2, 3 -> 2, 4 -> 3
-    int n_high = n_bits - 1;
+    int n_high = n_bits;
     int mask = 1 << n_high;           ;; 2 -> 1, 3 -> 1, 4 -> 2
     repeat(n_high) {
       mask >>= 1;
-      int v2sq = v2 * v2;
-      (v1, v2, v3) = (v1 * v1 + v2sq, (v1 + v3) * v2, v2sq + v3 * v3);
-      if (n & mask) {
-        (v1, v2, v3) = (v1 + v2, v1, v2);
+      (a, b) = (a * (2 * b - a), a * a + b * b);
+      if (mask & n) {
+        (a, b) = (b, a + b);
       }
     }
-  } elseif (n) {
-    v1 = 1;
-    v2 = 0;
   }
   
-  return calculate_sequence(v2, v1, k);
+  if (k - 1) {
+    return calculate_sequence(a, b, k);
+  } else {
+    return unsafe::transmute(single(a));
+  }
 }
 
 tuple fibonacci_sequence(int n, int k) method_id {
