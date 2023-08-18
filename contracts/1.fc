@@ -12,36 +12,34 @@ int udict_has(cell dict, int key, int key_len) asm(key dict key_len) "DICTUGET N
 
 cell empty_cell() asm "<b b> PUSHREF";
 
-cell _find_branch_by_hash(int hash, [tuple, cell] stack) asm
+cell _find_branch_by_hash(cell barrier, int hash, cell top) asm
   "CONT:<{"
-  "  UNTILBRK:<{     // hash stack"
-  "    UNCONS        // hash next top"
-  "    s2 s0 PUSH2   // hash next top hash top"
-  "    HASHCU        // hash next top hash top-hash"
-  "    EQUAL         // hash next top found"
-  "    IFRETALT      // hash next top  |  ... top"
-  "    CTOS          // hash next top"
-  "    DUP           // hash next top top"
-  "    SREFS         // hash next top top-refs"
-  "    REPEAT:<{     // hash next top"
-  "      LDREF       // hash next new-ref top"
-  "      -ROT        // hash top next new-ref"
-  "      CONS        // hash top next"
-  "      SWAP        // hash next top"
+  "  UNTILBRK:<{     // *stack hash top"
+  "    DUP2          // *stack hash top hash top"
+  "    HASHCU        // *stack hash top hash top-hash"
+  "    EQUAL         // *stack hash top found"
+  "    IFRETALT      // *stack hash top  |  ... top"
+  "    CTOS          // *stack hash top"
+  "    DUP           // *stack hash top top"
+  "    SREFS         // *stack hash top top-refs"
+  "    REPEAT:<{     // *stack hash top"
+  "      LDREF       // *stack hash new-ref top"
+  "      s1 s2 XCHG  // *stack new-ref hash top"
   "    }>"
-  "    DROP          // hash next"
-  "    DUP           // hash next next"
-  "    ISNULL        // hash next stop"
+  "    DROP          // *stack hash"
+  "    SWAP          // *stack hash top"
+  "    DUP           // *stack hash top top"
+  "    ISNULL        // *stack hash top stop"
   "  }>"
   "}>"
-  "2 1 CALLXARGS";
+  "3 1 CALLXARGS";
 
 cell find_branch_by_hash(int hash, cell tree) method_id {
   if (hash == 0x96A296D224F285C67BEE93C30F8A309157F0DAA35DC5B87E410B78630A09CFC7) {
     return empty_cell();
   }
   
-  cell answer = _find_branch_by_hash(hash, pair(null(), tree));
+  cell answer = _find_branch_by_hash(null(), hash, tree);
   if (answer.cell_null?()) {
     return empty_cell();
   } else {
