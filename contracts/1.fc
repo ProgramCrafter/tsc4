@@ -13,8 +13,9 @@ int udict_has(cell dict, int key, int key_len) asm(key dict key_len) "DICTUGET N
 cell empty_cell() asm "<b b> PUSHREF";
 
 cell _find_branch_by_hash(cell barrier, int hash, cell top) asm
-  "CONT:<{"
-  "  UNTILBRK:<{     // *stack hash top"
+  "TRY:<{"
+  "  SAMEALT"
+  "  AGAIN:<{        // *stack hash top"
   "    DUP2          // *stack hash top hash top"
   "    HASHCU        // *stack hash top hash top-hash"
   "    EQUAL         // *stack hash top found"
@@ -28,21 +29,16 @@ cell _find_branch_by_hash(cell barrier, int hash, cell top) asm
   "    }>"
   "    DROP          // *stack hash"
   "    SWAP          // *stack hash top"
-  "    DUP           // *stack hash top top"
-  "    ISNULL        // *stack hash top stop"
   "  }>"
+  "}>CATCH<{"
+  "  <b b> PUSHREF"
   "}>"
-  "3 1 CALLXARGS";
+  "ONE ONLYTOPX";
 
 cell find_branch_by_hash(int hash, cell tree) method_id {
   if (hash == 0x96A296D224F285C67BEE93C30F8A309157F0DAA35DC5B87E410B78630A09CFC7) {
     return empty_cell();
   }
   
-  cell answer = _find_branch_by_hash(null(), hash, tree);
-  if (answer.cell_null?()) {
-    return empty_cell();
-  } else {
-    return answer;
-  }
+  return _find_branch_by_hash(null(), hash, tree);
 }
